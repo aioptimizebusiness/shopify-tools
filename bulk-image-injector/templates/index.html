@@ -411,8 +411,41 @@
         }
 
         @media (max-width: 640px) {
+            nav {
+                flex-direction: column;
+                gap: 16px;
+                padding: 24px 20px;
+                text-align: center;
+            }
+
+            .logo {
+                font-size: 1.2rem;
+                justify-content: center;
+                width: 100%;
+                white-space: nowrap;
+            }
+
+            .main-site-link {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .stats-bar {
+                display: flex;
+                flex-direction: column;
+                gap: 8px;
+                padding: 12px 0;
+            }
+
+            .stats-bar .stat-item {
+                margin: 0;
+                justify-content: center;
+            }
+
             .grid-forms {
                 grid-template-columns: 1fr;
+                gap: 32px;
+                /* Increased gap for breathing room */
             }
 
             .results-grid {
@@ -420,11 +453,17 @@
             }
 
             .main-card {
-                padding: 32px 24px;
+                padding: 40px 20px;
+                /* Reduced side padding */
+                margin-top: 20px;
             }
 
             h1 {
                 font-size: 1.75rem;
+            }
+
+            .subtitle {
+                font-size: 0.95rem;
             }
         }
     </style>
