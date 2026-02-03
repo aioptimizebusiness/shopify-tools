@@ -1,4 +1,7 @@
 instructions.md
+usage_stats.json
+docker-compose.yml
+docker-compose.override.yml
 __pycache__/
 *.py[cod]
 *.csv

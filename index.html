@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopify Tools Hub | AI Optimize Business</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+        :root {
+            --primary: #0066cc;
+            --primary-soft: #eef6ff;
+            --primary-border: rgba(0, 102, 204, 0.15);
+            --bg: #f8fafc;
+            --surface: rgba(255, 255, 255, 0.9);
+            --text: #0f172a;
+            --text-muted: #64748b;
+            --radius: 10px;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg);
+            background-image:
+                radial-gradient(circle at 0% 0%, var(--primary-soft) 0%, transparent 40%),
+                radial-gradient(circle at 100% 100%, var(--primary-soft) 0%, transparent 40%);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        nav {
+            padding: 40px;
+            width: 100%;
+            max-width: 1200px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-weight: 600;
+            font-size: 1.5rem;
+            color: var(--text);
+            text-decoration: none;
+        }
+
+        .logo span {
+            color: var(--primary);
+            font-weight: 400;
+        }
+
+        .container {
+            max-width: 1000px;
+            width: 90%;
+            margin-top: 60px;
+            text-align: center;
+        }
+
+        header {
+            margin-bottom: 60px;
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            margin-bottom: 12px;
+        }
+
+        header p {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 24px;
+            margin-bottom: 80px;
+        }
+
+        .tool-card {
+            background: var(--surface);
+            backdrop-filter: blur(10px);
+            border: 1px solid white;
+            padding: 40px;
+            border-radius: var(--radius);
+            text-align: left;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 4px 20px rgba(0, 50, 100, 0.03);
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .tool-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 30px rgba(0, 102, 204, 0.1);
+            border-color: var(--primary-border);
+        }
+
+        .icon-box {
+            width: 48px;
+            height: 48px;
+            background: var(--primary-soft);
+            color: var(--primary);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .tool-card h3 {
+            font-size: 1.25rem;
+            margin-bottom: 12px;
+            font-weight: 600;
+        }
+
+        .tool-card p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            margin-bottom: 24px;
+            flex-grow: 1;
+        }
+
+        .btn-launch {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            color: var(--primary);
+            font-weight: 600;
+            font-size: 0.95rem;
+        }
+
+        footer {
+            margin-top: auto;
+            padding: 40px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        @media (max-width: 640px) {
+            h1 {
+                font-size: 2.2rem;
+            }
+
+            .container {
+                margin-top: 20px;
+            }
+
+            .tools-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <a href="https://aioptimizebusiness.com/" class="logo">
+            AI Optimize. <span>Business</span>
+        </a>
+    </nav>
+
+    <div class="container">
+        <header>
+            <h1>Shopify <span>Tools Hub</span></h1>
+            <p>A collection of high-performance micro-apps designed to automate and scale your Shopify store operations.
+            </p>
+        </header>
+
+        <div class="tools-grid">
+            <!-- Bulk Image Injector -->
+            <a href="/shopify/bulk-image-injector/" class="tool-card">
+                <div class="icon-box">
+                    <i data-lucide="image-plus"></i>
+                </div>
+                <h3>Bulk Image Injector</h3>
+                <p>Add labels, certificates, or warranty badges to your entire product catalog in seconds via CSV.</p>
+                <div class="btn-launch">
+                    Launch Tool <i data-lucide="arrow-right" style="width: 16px;"></i>
+                </div>
+            </a>
+
+            <!-- Placeholder for future tools -->
+            <div class="tool-card" style="opacity: 0.6; cursor: default; border-style: dashed;">
+                <div class="icon-box" style="background: #f1f5f9; color: #94a3b8;">
+                    <i data-lucide="plus"></i>
+                </div>
+                <h3>Coming Soon</h3>
+                <p>More automation tools for Shopify SEO, Metafields, and Inventory management are currently in
+                    engineering.</p>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        &copy; 2026 AI Optimize Business. Built for Modern E-commerce.
+    </footer>
+
+    <script>
+        lucide.createIcons();
+    </script>
+</body>
+
+</html>
