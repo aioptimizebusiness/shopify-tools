@@ -1,10 +1,10 @@
+instructions.md
 __pycache__/
 *.py[cod]
-*$py.class
-venv/
-.env
 *.csv
 processed_*.csv
+venv/
+.env
 .vscode/
 .idea/
 .DS_Store

@@ -1,21 +1,23 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 import csv
 import io
 import os
 import json
-from collections import defaultdict
 from datetime import datetime
 
 app = Flask(__name__)
 
-# Path to persistent stats file on VPS
+# Constants
 STATS_FILE = 'usage_stats.json'
 
 def get_stats():
     if not os.path.exists(STATS_FILE):
         return {"files_processed": 0, "products_updated": 0, "images_added": 0, "total_usage_count": 0}
-    with open(STATS_FILE, 'r') as f:
-        return json.load(f)
+    try:
+        with open(STATS_FILE, 'r') as f:
+            return json.load(f)
+    except:
+        return {"files_processed": 0, "products_updated": 0, "images_added": 0, "total_usage_count": 0}
 
 def update_stats(new_products, new_images):
     stats = get_stats()
@@ -30,9 +32,15 @@ def update_stats(new_products, new_images):
 def index():
     return render_template('index.html', stats=get_stats())
 
-@app.route('/api/stats')
-def api_stats():
-    return jsonify(get_stats())
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'),
+                               'favicon.webp', mimetype='image/webp')
+
+@app.errorhandler(404)
+def page_not_found(e):
+    # Simply redirect to index for micro-apps hub or show simple 404
+    return render_template('index.html', stats=get_stats()), 404
 
 @app.route('/process', methods=['POST'])
 def process_csv():
@@ -44,84 +52,79 @@ def process_csv():
         image_url = request.form.get('imageUrl', '').strip()
         alt_text = request.form.get('altText', '').strip()
 
-        if file.filename == '':
-            return jsonify({"error": "No file selected"}), 400
-
-        if not image_url:
-            return jsonify({"error": "Please provide an Image URL."}), 400
-
-        if not (image_url.startswith('http://') or image_url.startswith('https://')):
-            return jsonify({"error": "Invalid Image URL."}), 400
-
-        # Read CSV content
-        content = file.read().decode('utf-8-sig')
-        stream = io.StringIO(content)
-        reader = csv.DictReader(stream)
-        fieldnames = reader.fieldnames
-
-        if not fieldnames or "Handle" not in fieldnames:
-            return jsonify({"error": "Invalid Shopify CSV: 'Handle' column not found."}), 400
-
-        has_alt_col = "Image Alt Text" in fieldnames
-        product_groups = defaultdict(list)
-        handle_order = []
+        if not file or not file.filename.endswith('.csv'):
+            return jsonify({"error": "Please upload a valid CSV file"}), 400
         
-        for row in reader:
-            handle = row.get("Handle", "")
-            if not handle: continue
-            if handle not in product_groups:
-                handle_order.append(handle)
-            product_groups[handle].append(row)
+        if not image_url.startswith('http'):
+            return jsonify({"error": "Invalid Image URL. Must start with http/https."}), 400
 
-        final_rows = []
+        # Read CSV
+        stream = io.StringIO(file.stream.read().decode("utf-8-sig"), newline=None)
+        reader = csv.DictReader(stream)
+        rows = list(reader)
+        
+        if not rows:
+            return jsonify({"error": "CSV file is empty"}), 400
+
+        output = io.StringIO()
+        writer = csv.DictWriter(output, fieldnames=reader.fieldnames)
+        writer.writeheader()
+
+        processed_products = set()
         added_count = 0
         skipped_count = 0
+        
+        handle_order = []
+        product_map = {}
+
+        for row in rows:
+            h = row.get('Handle', '').strip()
+            if not h: continue
+            if h not in product_map:
+                handle_order.append(h)
+                product_map[h] = []
+            product_map[h].append(row)
 
         for handle in handle_order:
-            rows = product_groups[handle]
+            p_rows = product_map[handle]
+            
+            existing_images = [r.get('Image Src', '') for r in p_rows if r.get('Image Src')]
             max_pos = 0
-            image_exists = False
-            for row in rows:
-                pos_val = row.get("Image Position")
-                if pos_val and str(pos_val).isdigit():
-                    max_pos = max(max_pos, int(pos_val))
-                if row.get("Image Src") == image_url:
-                    image_exists = True
-            
-            final_rows.extend(rows)
-            
-            if image_exists:
+            for r in p_rows:
+                try:
+                    pos = int(r.get('Image Position', 0))
+                    if pos > max_pos: max_pos = pos
+                except: continue
+
+            if image_url in existing_images:
                 skipped_count += 1
+                for r in p_rows: writer.writerow(r)
             else:
-                new_row = {field: "" for field in fieldnames}
-                new_row["Handle"] = handle
-                new_row["Image Src"] = image_url
-                new_row["Image Position"] = str(max_pos + 1)
-                if has_alt_col:
-                    new_row["Image Alt Text"] = alt_text
-                
-                final_rows.append(new_row)
                 added_count += 1
+                for r in p_rows: writer.writerow(r)
+                
+                new_row = {k: '' for k in reader.fieldnames}
+                new_row['Handle'] = handle
+                new_row['Image Src'] = image_url
+                new_row['Image Position'] = max_pos + 1
+                if 'Image Alt Text' in reader.fieldnames:
+                    new_row['Image Alt Text'] = alt_text
+                
+                writer.writerow(new_row)
 
-        # Update global stats
         update_stats(len(handle_order), added_count)
-
-        output_stream = io.StringIO()
-        writer = csv.DictWriter(output_stream, fieldnames=fieldnames)
-        writer.writeheader()
-        writer.writerows(final_rows)
         
+        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         return jsonify({
-            "success": True,
+            "csvContent": output.getvalue(),
+            "fileName": f"augmented_catalog_{timestamp}.csv",
             "stats": {
                 "totalProducts": len(handle_order),
                 "added": added_count,
                 "skipped": skipped_count,
-                "totalRows": len(final_rows)
+                "totalRows": len(rows) + added_count
             },
-            "global_stats": get_stats(),
-            "csvContent": output_stream.getvalue(),
-            "fileName": f"processed_{file.filename}"
+            "global_stats": get_stats()
         })
 
     except Exception as e:
